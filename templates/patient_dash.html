@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient's Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
+     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+     <style>
+
+        #main{
+            padding: 30px;
+            margin-top: 20px;
+            max-width: 70%;
+            margin: auto;
+            height: 100%;
+            border: 4px solid #e3f2fd ;
+            border-radius: 25px;
+
+            }
+            .navbar{
+                border-radius: 25px;
+            }
+            #sub_heading{
+                padding: 20px;
+            }
+
+     </style>
+
+
+
+</head>
+<body>
+    <div id="main">
+        <nav class="navbar" style="background-color: #e3f2fd;" data-bs-theme="light">
+            <div class="container-fluid">
+                <a class="navbar-brand">Welcome User 1</a>
+                <a href="admin_dash.html">
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <button type="button" class="btn btn-warning">History</button>
+                        <button type="button" class="btn btn-success">Edit Profile</button>
+                        <button type="button" class="btn btn-danger">Logout</button>
+                    </div>
+                </a>
+            </div>
+        </nav>
+            <div >
+                <h4 id="sub_heading">
+                    Departments
+                </h4>
+                <table class="table">
+                <thead>
+                    <tr>
+                    <th scope="col">Sr No</th>
+                    <th scope="col">Department Name</th>
+                    <th scope="col">Department Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <th scope="row">1</th>
+                    <td>
+                        Cardiology
+
+                    </td>
+                    <td>
+                        <a href="patient_history.html">
+                        <button type="button" class="btn btn-outline-primary">View details</button>
+                        </a>
+
+                    </td>
+                    </tr>
+                    <tr>
+                    <th scope="row">2</th>
+                    <td>Neology</td>
+                     <td>
+                        <a href="patient_history.html">
+                        <button type="button" class="btn btn-outline-primary">View details</button>
+                        </a>
+                    </td>
+                    </tr><tr>
+                    <th scope="row">3</th>
+                    <td>General</td>
+                     <td>
+                        <a href="patient_history.html">
+                        <button type="button" class="btn btn-outline-primary">View details</button>
+                        </a>
+
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+
+            <div >
+            <h4 id="sub_heading">
+                Upcoming appointments
+            </h4>
+            <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">Sr No</th>
+                <th scope="col">Doctor Name</th>
+                <th scope="col">Department</th>
+                <th scope="col">Time Slot</th>
+                <th scope="col">Cancle </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <th scope="row">1</th>
+                <td>Dr Naveed</td>
+                <td>Neology</td>
+                <td>4:00pm - 7:00pm</td>
+                <td>
+                    <a href="patient_history.html">
+                    <button type="button" class="btn btn-outline-danger">Cancle appointment</button>
+                    </a>
+
+                </td>
+                </tr>
+                <tr>
+                <th scope="row">1</th>
+                <td>Dr Naveed</td>
+                <td>Neology</td>
+                <td>9:00am - 12:00pm</td>
+                <td>
+                    <a href="patient_history.html">
+                    <button type="button" class="btn btn-outline-danger">Cancle appointment</button>
+                    </a>
+
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+</body>
+</html>
+
