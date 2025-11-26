@@ -32,22 +32,22 @@
             <h2 id="login-heading">
                 Add New Doctor
             </h2>
-            <form action="">
+            <form action="/add" method="post">
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="name" placeholder="abc123">
+                <input type="text" class="form-control" id="name" name="name">
             </div>
             <div class="mb-3">
-                <label for="text" class="form-label">Specialization/Department</label>
-                <input type="text" class="form-control" id="text" placeholder="@12$avs">
+                <label for="specialization" class="form-label">Specialization/Department</label>
+                <input type="text" class="form-control" id="specialization" name="specialization">
             </div>  
             <div class="mb-3">
-                <label for="num" class="form-label">Years of Experience</label>
-                <input type="number" class="form-control" id="num" placeholder="ex. 13+ years">
+                <label for="experience" class="form-label">Years of Experience</label>
+                <input type="number" class="form-control" id="experience" name="experience">
             </div>
             <div class="mb-3">
-                <label for="text" class="form-label">Details about the doctor</label>
-                <input type="text" class="form-control" id="text" placeholder="ex. 13+ years">
+                <label for="details" class="form-label">Details about the doctor</label>
+                <input type="text" class="form-control" id="details" name="details">
             </div>  
             <div class="d-grid gap-2 col-6 mx-auto">
                <input type="submit" class="btn btn-primary" value="Create">

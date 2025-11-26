@@ -7,7 +7,7 @@ class User(db.Model):
   type=db.Column(db.String(), nullable=False, default="user")
   requests=db.relationship("Request", backref="user") 
 
-class Product(db.Model):
+class doctor(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(), nullable=False)
   specialisation = db.Column(db.String(), nullable=False)
@@ -20,7 +20,7 @@ class Product(db.Model):
 class department(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(), nullable=False)
-  details = db.Column(db.string(), nullable=False)
+  detail = db.Column(db.string(), nullable=False)
   status = db.Column(db.String(), nullable=False, default="available")
 
 class Request(db.Model):
@@ -29,6 +29,16 @@ class Request(db.Model):
   product_id = db.Column(db.Integer(), db.ForeignKey("product.id"),nullable=False)
   units_requested = db.Column(db.Integer(), nullable=False)
   status = db.Column(db.String(), nullable=False, default="requested")
+
+class Product(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(), nullable=False)
+  specialisation = db.Column(db.String(), nullable=False)
+  experience = db.Column(db.Integer(), nullable=False)
+  details = db.Column(db.string(), nullable=False)
+  status = db.Column(db.String(), nullable=False, default="available")
+  requests=db.relationship("Request", backref="product")
+  
 
 
 

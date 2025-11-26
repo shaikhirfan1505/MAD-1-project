@@ -46,7 +46,7 @@ def register():
   return render_template("register.html")
 
 @app.route("/admin")
-def manager():
+def admin():
   this_user = User.query.filter_by(type="admin").first()
   all_dept = department.query.all()
   return render_template("admin_dash.html", this_user=this_user, all_dept=all_dept)
@@ -58,17 +58,28 @@ def home(user_id):
   return render_template("user_dash.html", this_user=this_user, all_prod=all_prod)
 
 @app.route("/add",methods=["GET","POST"])
+def add():
+  if request.method == "POST":
+    name = request.form.get("name")
+    specialisation = request.form.get("specialisation")
+    experience = request.form.get("experience")
+    details = request.form.get("details")
+    new_doctor = doctor(name=name,specialisation=specialisation,experience=experience,details=details)
+    db.session.add(new_doctor)
+    db.session.commit()
+    return redirect("/admin")
+  return render_template("add_doctor.html")
+
+@app.route("/create",methods=["GET","POST"])
 def create():
   if request.method == "POST":
     name = request.form.get("name")
-    cat = request.form.get("cat")
-    iq = request.form.get("iq")
-    cu = request.form.get("cu")
-    new_prod = Product(name=name,category=cat,quantity=iq,cost=cu)
-    db.session.add(new_prod)
+    details = request.form.get("details")
+    new_department = department(name=name,details=details)
+    db.session.add(new_department)
     db.session.commit()
-    return redirect("/manager")
-  return render_template("create_product.html")
+    return redirect("/admin")
+  return render_template("create_dept.html")
 
 @app.route("/update/<int:prod_id>",methods=["GET","POST"])
 def update(prod_id):
