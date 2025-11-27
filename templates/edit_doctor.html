@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doctor</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        #main {
+            max-width: 60%;
+            margin: 60px auto;
+        }
+
+        #card {
+            border: 3px solid #e3f2fd;
+            padding: 30px;
+            margin: auto;
+            max-width: 450px;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        #form-heading {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="main">
+    <div id="card">
+        <h2 id="form-heading">Edit Doctor</h2>
+
+        <form action="/admin/doctor/edit/{{ doctor.id }}" method="POST">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ doctor.name }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="specialization" class="form-label">Specialization / Department</label>
+                <input type="text" class="form-control" id="specialization" name="specialization" value="{{ doctor.specialization }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="experience" class="form-label">Years of Experience</label>
+                <input type="number" class="form-control" id="experience" name="experience" value="{{ doctor.experience }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="details" class="form-label">Doctor Details</label>
+                <textarea class="form-control" id="details" name="details" rows="3">{{ doctor.details }}</textarea>
+            </div>
+
+            <div class="d-grid gap-2 col-8 mx-auto">
+                <input type="submit" class="btn btn-primary" value="Update Doctor">
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
