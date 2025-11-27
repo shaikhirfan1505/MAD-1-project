@@ -14,6 +14,7 @@
             margin: auto;
             margin-top: 40px;
             padding: 20px;
+            height: 800px;
             border: 4px solid #e3f2fd;
             border-radius: 25px;
         }
@@ -23,6 +24,7 @@
             padding: 25px;
             margin: auto;
             max-width: 450px;
+            height: 750px;
             border-radius: 25px;
             background: #ffffff;
         }
@@ -44,12 +46,23 @@
                     <label for="name" class="form-label">Full Name</label>
                     <input type="text" class="form-control" id="name" name="name" required>
                 </div>
-
                 <div class="mb-3">
-                    <label for="specialization" class="form-label">Specialization / Department</label>
-                    <input type="text" class="form-control" id="specialization" name="specialization" required>
+                    <label for="department_id" class="form-label">Department</label>
+                        <select name="department_id" class="form-control" required>
+                            <option value="" disabled selected>Select Department</option>
+                            {% for dept in Departments %}
+                                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
                 </div>
-
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="number" class="form-control" name="phone" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" required>
+                </div>
                 <div class="mb-3">
                     <label for="experience" class="form-label">Years of Experience</label>
                     <input type="number" class="form-control" id="experience" name="experience" required>

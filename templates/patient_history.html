@@ -61,9 +61,13 @@
 
     <!-- Patient Info -->
     <div id="description">
-        <p><strong>Patient's Name:</strong> {{ patient.name }}</p>
-        <p><strong>Doctor's Name:</strong> {{ doctor.name }}</p>
-        <p><strong>Department:</strong> {{ department.name }}</p>
+        {% if history_data %}
+            <p><strong>Doctor's Name:</strong> {{ history_data[0].doctor.name }}</p>
+            <p><strong>Department:</strong> {{ history_data[0].department.name }}</p>
+            {% else %}
+            <p>No history available.</p>
+        {% endif %}
+
     </div>
 
     <!-- Treatment History Table -->
@@ -76,27 +80,28 @@
                     <th scope="col">Diagnosis</th>
                     <th scope="col">Prescription</th>
                     <th scope="col">Medicines</th>
-                    {% if current_user.role in ['admin', 'doctor'] %}
+                    {% if user_role in ['admin', 'doctor'] %}
                     <th scope="col">Actions</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for visit in treatment_history %}
+                {% for record in history_data %}
                 <tr>
                     <th scope="row">{{ loop.index }}</th>
-                    <td>{{ visit.visit_type }}</td>
-                    <td>{{ visit.diagnosis }}</td>
-                    <td>{{ visit.prescription }}</td>
-                    <td>{{ visit.medicines }}</td>
-                    {% if current_user.role == 'doctor' %}
+                    <td>{{ record.visit.visit_type }}</td>
+                    <td>{{ record.visit.diagnosis }}</td>
+                    <td>{{ record.visit.prescription }}</td>
+                    <td>{{ record.visit.medicines }}</td>
+                    {% if user_role == 'doctor' %}
                     <td>
-                        <a href="/treatment/edit/{{ visit.id }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/treatment/edit/{{ record.visit.id }}" class="btn btn-sm btn-warning">Edit</a>
                     </td>
                     {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
+
 
         </table>
     </div>

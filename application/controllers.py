@@ -55,6 +55,14 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         return render_template('register.html')
+    
+    #logout for admin
+    @app.route('/logout')
+    def logout():
+        session.clear()  # removes all session data
+        flash("You have been logged out.", "success")
+        return redirect(url_for('login'))
+
 
     # Admin dashboard route
     @app.route('/admin/dashboard')
@@ -110,7 +118,7 @@ def init_routes(app):
 
         if request.method == 'POST':
             name = request.form['name']
-            specialization = request.form['specialization']
+            phone = request.form['phone']
             experience = request.form['experience']
             details = request.form['details']
             department_id = request.form['department_id']  # get selected department
@@ -118,8 +126,7 @@ def init_routes(app):
             # Create User record for doctor
             username = name.lower().replace(" ", "")
             email = f"{username}@hospital.com"
-            password = "doctor123"  # default password
-
+            password = request.form['password']
             new_user = User(username=username, email=email, password=password, role='doctor')
             db.session.add(new_user)
             db.session.commit()
@@ -128,7 +135,7 @@ def init_routes(app):
             new_doctor = Doctor(
                 name=name,
                 email=email,
-                specialization=specialization,
+                phone=phone,
                 experience=experience,
                 details=details,
                 department_id=department_id
@@ -136,7 +143,7 @@ def init_routes(app):
             db.session.add(new_doctor)
             db.session.commit()
 
-            flash(f"Doctor {name} added. Login: {username}/doctor123", "success")
+            flash(f"Doctor {name} added.", "success")
             return redirect('/admin/dashboard')
 
         return render_template('add_doctor.html', Departments=Departments)
@@ -188,15 +195,18 @@ def init_routes(app):
 
         if request.method == 'POST':
             doctor.name = request.form['name']
-            doctor.specialization = request.form['specialization']
+            doctor.phone = request.form['phone']
             doctor.experience = request.form['experience']
             doctor.details = request.form['details']
+            doctor.department_id = request.form['department_id']
 
             db.session.commit()
             flash("Doctor details updated successfully.", "success")
             return redirect(url_for('admin_dashboard'))
 
-        return render_template('edit_doctor.html', doctor=doctor)
+        Departments = Department.query.all()
+        return render_template('edit_doctor.html', doctor=doctor, Departments=Departments)
+
     
     # Delete doctor route
     @app.route('/admin/doctor/delete/<int:doctor_id>', methods=['GET', 'POST'])
@@ -242,46 +252,40 @@ def init_routes(app):
         flash(f"Department '{name}' created successfully", "success")
         return redirect(url_for('admin_dashboard'))
     
-    #admin view history of patient
+
+
+        # View patient history (Admin)
     @app.route('/admin/patient/<int:patient_id>/history')
-    def admin_view_patient_history(patient_id):
+    def admin_patient_history(patient_id):
         if 'role' not in session or session['role'] != 'admin':
             flash("Access denied!", "danger")
             return redirect(url_for('login'))
 
         patient = Patient.query.get_or_404(patient_id)
-        histories = TreatmentHistory.query.filter_by(patient_id=patient.id).all()
+        treatment_history = TreatmentHistory.query.filter_by(patient_id=patient.id).order_by(TreatmentHistory.created_at.desc()).all()
 
-        return render_template('patient_history.html', histories=histories, patient=patient)
+        history_data = []
+        for visit in treatment_history:
+            doctor = Doctor.query.get(visit.doctor_id)
+            department = Department.query.get(visit.department_id)
+            history_data.append({
+                "visit": visit,
+                "doctor": doctor,
+                "department": department
+            })
+
+        user_role = session.get('role')  # pass role instead of current_user
+        return render_template(
+            'patient_history.html',
+            patient=patient,
+            history_data=history_data,
+            back_url=url_for('admin_dashboard'),
+            user_role=user_role
+        )
+
+
     
-    #doctor view history of patient
-    @app.route('/doctor/patient/<int:patient_id>/history')
-    def doctor_view_patient_history(patient_id):
-        if 'role' not in session or session['role'] != 'doctor':
-            flash("Access denied!", "danger")
-            return redirect(url_for('login'))
 
-        user_id = session.get('user_id')
-        doctor = Doctor.query.filter_by(email=User.query.get(user_id).email).first()
-
-        # Only allow if this doctor treated the patient
-        histories = TreatmentHistory.query.filter_by(patient_id=patient_id, doctor_id=doctor.id).all()
-        patient = Patient.query.get_or_404(patient_id)
-
-        return render_template('patient_history.html', histories=histories, patient=patient)
-    
-    #patient view thier own history
-    @app.route('/patient/history')
-    def patient_own_history():
-        if 'role' not in session or session['role'] != 'patient':
-            flash("Access denied!", "danger")
-            return redirect(url_for('login'))
-
-        user_id = session.get('user_id')
-        patient = Patient.query.filter_by(user_id=user_id).first()
-        histories = TreatmentHistory.query.filter_by(patient_id=patient.id).all()
-
-        return render_template('patient_history.html', histories=histories, patient=patient)
 
 
 

@@ -13,10 +13,12 @@ class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
-    specialization = db.Column(db.String(100))
+    phone = db.Column(db.String(20), nullable=False)
     experience = db.Column(db.Integer)
     details = db.Column(db.Text)
     available_slots = db.Column(db.Text)  # Could store JSON string for slots
+    department_id = db.Column(db.Integer, db.ForeignKey('department.id'))
+    department = db.relationship('Department', backref='doctors')
 
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)

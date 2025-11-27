@@ -24,6 +24,7 @@
             padding: 30px;
             margin: auto;
             max-width: 450px;
+            height: 700px;
             border-radius: 25px;
             background: white;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -54,8 +55,18 @@
             </div>
 
             <div class="mb-3">
-                <label for="specialization" class="form-label">Specialization / Department</label>
-                <input type="text" class="form-control" id="specialization" name="specialization" value="{{ doctor.specialization }}" required>
+                <label for="department_id" class="form-label">Department</label>
+                    <select name="department_id" class="form-control" required>
+                        {% for dept in Departments %}
+                            <option value="{{ dept.id }}" {% if dept.id == doctor.department_id %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+            </div>
+            <div class="mb-3">
+                <label for="experience" class="form-label">Phone no</label>
+                <input type="number" class="form-control" id="experience" name="phone" value="{{ doctor.phone }}" required>
             </div>
 
             <div class="mb-3">

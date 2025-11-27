@@ -108,7 +108,8 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Specialization</th>
+                    <th>Department</th>
+                    <th>Phone No</th>
                     <th>Email</th>
                     <th>Actions</th>
                 </tr>
@@ -117,7 +118,8 @@
                 {% for doctor in doctors %}
                 <tr>
                     <td>{{ doctor.name }}</td>
-                    <td>{{ doctor.specialization }}</td>
+                    <td>{{ doctor.phone }}</td>
+                    <td>{{ doctor.department.name }}</td>
                     <td>{{ doctor.email }}</td>
                     <td>
                         <a href="/admin/doctor/{{ doctor.id }}" class="btn btn-sm btn-info text-white">View</a>
@@ -178,7 +180,7 @@
                     <td>{{ patient.email }}</td>
                     <td>{{ patient.phone }}</td>
                     <td>
-                        <a href="/admin/patient/{{ patient.id }}" class="btn btn-sm btn-info text-white">View</a>
+                        <a href="/admin/patient/{{ patient.id }}/history" class="btn btn-sm btn-info text-white">View History</a>
                         <a href="/admin/patient/edit/{{ patient.id }}" class="btn btn-sm btn-warning">Edit</a>
                         <a href="/admin/patient/delete/{{ patient.id }}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
