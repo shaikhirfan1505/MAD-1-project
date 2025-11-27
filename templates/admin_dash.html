@@ -176,7 +176,7 @@
                 <tr>
                     <td>{{ patient.name }}</td>
                     <td>{{ patient.email }}</td>
-                    <td>{{ patient.contact }}</td>
+                    <td>{{ patient.phone }}</td>
                     <td>
                         <a href="/admin/patient/{{ patient.id }}" class="btn btn-sm btn-info text-white">View</a>
                         <a href="/admin/patient/edit/{{ patient.id }}" class="btn btn-sm btn-warning">Edit</a>
@@ -207,8 +207,8 @@
                     <td>{{ dept.name }}</td>
                     <td>{{ dept.details }}</td>
                     <td>
+                        <a href="/admin/department/view{{ dept.id }}" class="btn btn-sm btn-info text-white">View</a>
                         <a href="/admin/department/edit/{{ dept.id }}" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="/admin/department/delete/{{ dept.id }}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
