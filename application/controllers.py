@@ -282,6 +282,45 @@ def init_routes(app):
             back_url=url_for('admin_dashboard'),
             user_role=user_role
         )
+    
+
+
+    # View Department Details (Admin)
+    @app.route('/admin/department/<int:department_id>')
+    def admin_department_details(department_id):
+        if 'role' not in session or session['role'] != 'admin':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        # Get department record
+        department = Department.query.get_or_404(department_id)
+
+        # Get all doctors in this department
+        doctors = Doctor.query.filter_by(department_id=department.id).all()
+
+        return render_template('department_detail.html', department=department, doctors=doctors)
+    
+
+    #edit department redirecting 
+    @app.route('/admin/departments/edit/<int:id>')
+    def edit_department(id):
+        dept = Department.query.get_or_404(id)
+        return render_template('edit_department.html', dept=dept)
+    
+    #edit department updating
+    @app.route('/admin/departments/update/<int:id>', methods=['POST'])
+    def update_department(id):
+        dept = Department.query.get_or_404(id)
+
+        dept.name = request.form['name']
+        dept.details = request.form['details']
+
+        db.session.commit()
+
+        return redirect('/admin/dashboard')  # admin dashboard departments section
+
+
+
 
 
     

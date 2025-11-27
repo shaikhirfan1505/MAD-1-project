@@ -64,7 +64,10 @@
         <span class="details-label">Email:</span> {{ doctor.email }}
     </div>
     <div class="details-row">
-        <span class="details-label">Specialization:</span> {{ doctor.specialization }}
+        <span class="details-label">Years Of Experience:</span> {{ doctor.experience }}+
+    </div>
+    <div class="details-row">
+        <span class="details-label">Department:</span> {{ doctor.department.name }}
     </div>
     <div class="details-row">
         <span class="details-label">About {{ doctor.name}}:</span> {{ doctor.details }}

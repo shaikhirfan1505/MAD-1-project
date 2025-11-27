@@ -64,7 +64,7 @@
                 <tr>
                     <th>Sr No</th>
                     <th>Name</th>
-                    <th>Specialization</th>
+                    <th>Department</th>
                     <th>Email</th>
                     <th>View Profile</th>
                 </tr>
@@ -74,10 +74,10 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ doctor.name }}</td>
-                    <td>{{ doctor.specialization }}</td>
+                    <td>{{ doctor.department.name }}</td>
                     <td>{{ doctor.email }}</td>
                     <td>
-                        <a href="/patient/doctor/{{ doctor.id }}/details" class="btn btn-sm btn-outline-primary">View</a>
+                        <a href="/admin/doctor/{{ doctor.id }}" class="btn btn-sm btn-outline-primary">View</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -85,7 +85,7 @@
         </table>
     </div>
 
-    <a href="/patient/dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    <a href="/admin/dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

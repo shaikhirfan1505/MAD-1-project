@@ -118,8 +118,8 @@
                 {% for doctor in doctors %}
                 <tr>
                     <td>{{ doctor.name }}</td>
-                    <td>{{ doctor.phone }}</td>
                     <td>{{ doctor.department.name }}</td>
+                    <td>{{ doctor.phone }}</td>
                     <td>{{ doctor.email }}</td>
                     <td>
                         <a href="/admin/doctor/{{ doctor.id }}" class="btn btn-sm btn-info text-white">View</a>
@@ -209,8 +209,8 @@
                     <td>{{ dept.name }}</td>
                     <td>{{ dept.details }}</td>
                     <td>
-                        <a href="/admin/department/view{{ dept.id }}" class="btn btn-sm btn-info text-white">View</a>
-                        <a href="/admin/department/edit/{{ dept.id }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/admin/department/{{ dept.id }}" class="btn btn-sm btn-info text-white">View</a>
+                        <a href="/admin/departments/edit/{{ dept.id }}" class="btn btn-sm btn-warning">Edit</a>
                     </td>
                 </tr>
                 {% endfor %}

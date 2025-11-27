@@ -53,3 +53,4 @@ class TreatmentHistory(db.Model):
     prescription = db.Column(db.Text)
     medicines = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
