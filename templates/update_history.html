@@ -3,104 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Update Patient History</title>
+    <title>Update Patient History</title>
     <link rel="stylesheet" href="/static/style.css">
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
-     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-     <style>
-        
-        #main{
-            padding: 30px;
-            margin-top: 20px;
-            max-width: 70%;
-            margin: auto;
-            height: 100%;
-            border: 4px solid #e3f2fd ;
-            border-radius: 25px;
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-            }
-            .navbar{
-                border-radius: 25px;
-            }
-            #sub_heading{
-                padding: 20px;
-            }
-            #description{
-                text-align: left;
-                margin: 20px;
-            }
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
 
-            #patients_nav{
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            
+        .navbar {
+            background: #0d6efd;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
 
-     </style>
+        #main {
+            max-width: 90%;
+            margin: 30px auto;
+        }
 
+        .table-section, .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
+        h4 {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
 
+        #patient-info p {
+            margin-bottom: 5px;
+        }
+
+        .btn-save {
+            border-radius: 12px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <div id="main">
-        <div >
-            <div id="patients_nav">
-                <h4 id="sub_heading">
-                 Update Patient History
-            </h4>
-            <a href="admin_dash.html">
-                <div class="d-grid gap-2 col-6 mx-auto">
-               <input type="submit" class="btn btn-success" value="Save">
-            </div>  
-            </a>
-            </div>
-            <p id="description">
-                Patient's Name : Salman Khan
-                <br>
-                Doctor's Name : Dr Naveed
-                <br>
-                Department : Neology
-            </p>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand">Hospital Management - Doctor</a>
+        <div class="ms-auto">
+            <a href="/logout" class="btn btn-light btn-sm">Logout</a>
         </div>
-            <div class="row">
-            <div class="col-sm-6 mb-3 mb-sm-0">
-                <div class="card">
-                <div class="card-body">
-                    <form action="">
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">Visit Type</label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-            <div class="mb-3">
-                <label for="pass" class="form-label">Test Done</label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">Daignosis</label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>
-            <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label">priscription</label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div>  
-            </form>
-                </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Medicines</h5>
-                    <div class="mb-3">
-                <label for="exampleFormControlInput1" class="form-label"></label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="">
-            </div> 
-                </div>
-                </div>
-            </div>
-            </div>
     </div>
+</nav>
+
+<div id="main">
+
+    <!-- Patient Info -->
+    <div class="table-section" id="patient-info">
+        <h4>Update Patient History</h4>
+        <p><strong>Patient Name:</strong> {{ patient.name }}</p>
+        <p><strong>Doctor Name:</strong> {{ doctor.name }}</p>
+        <p><strong>Department:</strong> {{ department.name }}</p>
+    </div>
+
+    <!-- Form -->
+    <form action="/doctor/patient/{{ patient.id }}/update" method="POST">
+
+        <div class="row">
+            <!-- Visit Details -->
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="mb-3">Visit Details</h5>
+
+                    <div class="mb-3">
+                        <label for="visit_type" class="form-label">Visit Type</label>
+                        <input type="text" name="visit_type" class="form-control" id="visit_type" value="{{ history.visit_type }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="test_done" class="form-label">Tests Done</label>
+                        <input type="text" name="test_done" class="form-control" id="test_done" value="{{ history.test_done }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="diagnosis" class="form-label">Diagnosis</label>
+                        <input type="text" name="diagnosis" class="form-control" id="diagnosis" value="{{ history.diagnosis }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="prescription" class="form-label">Prescription</label>
+                        <input type="text" name="prescription" class="form-control" id="prescription" value="{{ history.prescription }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medicines -->
+            <div class="col-md-6">
+                <div class="card">
+                    <h5 class="mb-3">Medicines</h5>
+                    <div class="mb-3">
+                        <label for="medicines" class="form-label">Medicines</label>
+                        <input type="text" name="medicines" class="form-control" id="medicines" value="{{ history.medicines }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-success btn-save">Save Updates</button>
+        </div>
+    </form>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
-

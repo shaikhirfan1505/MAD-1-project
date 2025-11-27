@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ department.name }} - Department Details</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .navbar {
+            background: #0d6efd;
+        }
+        .navbar-brand, .nav-link, .navbar-text {
+            color: white !important;
+            font-weight: 600;
+        }
+        #main {
+            padding: 30px;
+            margin-top: 20px;
+            max-width: 900px;
+            margin: auto;
+            border: 4px solid #e3f2fd;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        h4 {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+        .table-section {
+            margin-top: 20px;
+        }
+        .btn-sm {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/patient/dashboard">Hospital System</a>
+        <div class="ms-auto">
+            <a href="/logout" class="btn btn-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+    <h4>{{ department.name }} Department</h4>
+    <p>{{ department.details }}</p>
+
+    <div class="table-section">
+        <h5>Doctors in this Department</h5>
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Sr No</th>
+                    <th>Name</th>
+                    <th>Specialization</th>
+                    <th>Email</th>
+                    <th>View Profile</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ doctor.name }}</td>
+                    <td>{{ doctor.specialization }}</td>
+                    <td>{{ doctor.email }}</td>
+                    <td>
+                        <a href="/patient/doctor/{{ doctor.id }}/details" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/patient/dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

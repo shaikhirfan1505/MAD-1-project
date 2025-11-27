@@ -2,162 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient's Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
-     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-     <style>
+    <title>Patient Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
 
-        #main{
-            padding: 30px;
-            margin-top: 20px;
-            max-width: 70%;
-            margin: auto;
-            height: 100%;
-            border: 4px solid #e3f2fd ;
-            border-radius: 25px;
+        .navbar {
+            background: #0d6efd;
+        }
 
-            }
-            .navbar{
-                border-radius: 25px;
-            }
-            #sub_heading{
-                padding: 20px;
-            }
+        .navbar-brand, .nav-link, .navbar-text {
+            color: white !important;
+            font-weight: 600;
+        }
 
-     </style>
+        .dashboard-card, .table-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
 
+        h4 {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
 
-
+        .btn-sm {
+            font-size: 0.8rem;
+        }
+    </style>
 </head>
 <body>
-    <div id="main">
-        <nav class="navbar" style="background-color: #e3f2fd;" data-bs-theme="light">
-            <div class="container-fluid">
-                <a class="navbar-brand">Welcome User 1</a>
-                <a href="admin_dash.html">
-                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        <button type="button" class="btn btn-warning">History</button>
-                        <button type="button" class="btn btn-success">Edit Profile</button>
-                        <button type="button" class="btn btn-danger">Logout</button>
-                    </div>
-                </a>
-            </div>
-        </nav>
-            <div >
-                <h4 id="sub_heading">
-                    Departments
-                </h4>
-                <table class="table">
-                <thead>
-                    <tr>
-                    <th scope="col">Sr No</th>
-                    <th scope="col">Department Name</th>
-                    <th scope="col">Book Appointment</th>
-                    <th scope="col">Department Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                    <th scope="row">1</th>
-                    <td>
-                        Cardiology
 
-                    </td>
-                     <td>
-                        <a href="#">
-                        <button type="button" class="btn btn-outline-warning">Book Appointment</button>
-                        </a>
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand">Welcome {{ patient.name }}</a>
+        <div class="ms-auto btn-group">
+            <a href="/patient/history" class="btn btn-warning btn-sm">History</a>
+            <a href="/patient/profile/edit" class="btn btn-success btn-sm">Edit Profile</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
 
-                    </td>
-                    <td>
-                        <a href="department.html">
-                        <button type="button" class="btn btn-outline-primary">View details</button>
-                        </a>
+<!-- MAIN CONTENT -->
+<div class="container mt-4">
 
-                    </td>
-                    </tr>
-                    <tr>
-                    <th scope="row">2</th>
-                    <td>Neology</td>
-                     <td>
-                        <a href="#">
-                        <button type="button" class="btn btn-outline-warning">Book Appointment</button>
-                        </a>
-
-                    </td>
-                     <td>
-                        <a href="department.html">
-                        <button type="button" class="btn btn-outline-primary">View details</button>
-                        </a>
-                    </td>
-                    </tr><tr>
-                    <th scope="row">3</th>
-                    <td>General</td>
-                     <td>
-                        <a href="#">
-                        <button type="button" class="btn btn-outline-warning">Book Appointment</button>
-                        </a>
-
-                    </td>
-                     <td>
-                        <a href="department.html">
-                        <button type="button" class="btn btn-outline-primary">View details</button>
-                        </a>
-
-                    </td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-
-            <div >
-            <h4 id="sub_heading">
-                Upcoming appointments
-            </h4>
-            <table class="table">
+    <!-- Departments -->
+    <div class="table-section">
+        <h4>Departments</h4>
+        <table class="table table-hover table-sm">
             <thead>
                 <tr>
-                <th scope="col">Sr No</th>
-                <th scope="col">Doctor Name</th>
-                <th scope="col">Department</th>
-                <th scope="col">Date</th>
-                <th scope="col">Time Slot</th>
-                <th scope="col">Cancle </th>
+                    <th>Sr No</th>
+                    <th>Department Name</th>
+                    <th>Book Appointment</th>
+                    <th>Department Details</th>
                 </tr>
             </thead>
             <tbody>
+                {% for dept in departments %}
                 <tr>
-                <th scope="row">1</th>
-                <td>Dr Naveed</td>
-                <td>Neology</td>
-                <td>21/11/2025</td>
-                <td>4:00pm - 7:00pm</td>
-                <td>
-                    <a href="patient_history.html">
-                    <button type="button" class="btn btn-outline-danger">Cancle appointment</button>
-                    </a>
-
-                </td>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ dept.name }}</td>
+                    <td>
+                        <a href="/patient/book/{{ dept.id }}">
+                            <button type="button" class="btn btn-outline-warning btn-sm">Book Appointment</button>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/department/{{ dept.id }}">
+                            <button type="button" class="btn btn-outline-primary btn-sm">View Details</button>
+                        </a>
+                    </td>
                 </tr>
-                <tr>
-                <th scope="row">1</th>
-                <td>Dr Naveed</td>
-                <td>Neology</td>
-                <td>22/11/2025</td>
-                <td>9:00am - 12:00pm</td>
-                <td>
-                    <a href="patient_history.html">
-                    <button type="button" class="btn btn-outline-danger">Cancle appointment</button>
-                    </a>
-
-                </td>
-                </tr>
+                {% endfor %}
             </tbody>
-            </table>
-        </div>
-        </div>
+        </table>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="table-section">
+        <h4>Upcoming Appointments</h4>
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Sr No</th>
+                    <th>Doctor Name</th>
+                    <th>Department</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Cancel</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in upcoming_appointments %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ appt.doctor_name }}</td>
+                    <td>{{ appt.department_name }}</td>
+                    <td>{{ appt.date }}</td>
+                    <td>{{ appt.slot }}</td>
+                    <td>
+                        <a href="/patient/appointment/{{ appt.id }}/cancel">
+                            <button type="button" class="btn btn-outline-danger btn-sm">Cancel</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
