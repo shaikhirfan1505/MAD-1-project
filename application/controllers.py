@@ -62,6 +62,7 @@ def init_routes(app):
         session.clear()  # removes all session data
         flash("You have been logged out.", "success")
         return redirect(url_for('login'))
+    
 
 
     # Admin dashboard route
@@ -103,8 +104,25 @@ def init_routes(app):
             flash("Patient record not found!", "danger")
             return redirect(url_for('login'))
 
-        return render_template('patient_dash.html', patient=patient)
-    
+        # Fetch all available departments
+        departments = Department.query.all()
+
+        # Fetch upcoming appointments for this patient
+        upcoming_appointments = Appointment.query.filter_by(patient_id=patient.id).order_by(Appointment.date.asc()).all()
+
+        return render_template(
+            'patient_dash.html',
+            patient=patient,
+            departments=departments,
+            upcoming_appointments=upcoming_appointments
+        )
+
+    # Patient logout route
+    @app.route('/patient/logout')
+    def patient_logout():
+        session.clear()
+        flash("Logged out successfully.", "success")
+        return redirect(url_for('login'))
 
         # Add doctor route (only admin)
     @app.route('/admin/doctor/add', methods=['GET', 'POST'])
@@ -320,16 +338,45 @@ def init_routes(app):
         return redirect('/admin/dashboard')  # admin dashboard departments section
 
 
+    #patient viewing there own history
+    @app.route('/patient/history')
+    def patient_history():
+        if 'role' not in session or session['role'] != 'patient':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
 
+        user_id = session.get('user_id')
+        patient = Patient.query.filter_by(user_id=user_id).first()
+        if not patient:
+            flash("Patient record not found!", "danger")
+            return redirect(url_for('login'))
 
+        treatment_history = TreatmentHistory.query.filter_by(patient_id=patient.id)\
+                                                .order_by(TreatmentHistory.created_at.desc()).all()
 
-    
+        history_data = []
+        for visit in treatment_history:
+            doctor = Doctor.query.get(visit.doctor_id)
+            department = Department.query.get(visit.department_id)
+            history_data.append({
+                "visit": visit,
+                "doctor": doctor,
+                "department": department
+            })
 
+        return render_template('patient_history.html',
+                            patient=patient,
+                            history_data=history_data,
+                            back_url=url_for('patient_dashboard'),
+                            user_role='patient')
 
+    #patient viewing departments
+    @app.route('/department/<int:department_id>')
+    def view_department(department_id):
+        if 'role' not in session or session['role'] != 'patient':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
 
-
-
-
-
-
-
+        department = Department.query.get_or_404(department_id)
+        doctors = Doctor.query.filter_by(department_id=department.id).all()
+        return render_template('department_detail.html', department=department, doctors=doctors)
