@@ -39,15 +39,19 @@ h4 { color: #0d6efd; margin-bottom: 15px; text-align: center; }
             <th>Slot 2</th>
           </tr>
         </thead>
-        <tbody>
-          {% for date in next_7_days %}
-          <tr>
-            <td>{{ date }}</td>
-            <td><input type="time" name="slot1_{{ date }}" class="form-control" required></td>
-            <td><input type="time" name="slot2_{{ date }}" class="form-control" required></td>
-          </tr>
-          {% endfor %}
-        </tbody>
+          <tbody>
+            {% for date in next_7_days %}
+            <tr>
+              <td>{{ date }}</td>
+              <td>
+                <input type="time" name="slot1_{{ date }}" value="{{ slots_data[date]['slot1'] if date in slots_data else '' }}" class="form-control" required>
+              </td>
+              <td>
+                <input type="time" name="slot2_{{ date }}" value="{{ slots_data[date]['slot2'] if date in slots_data else '' }}" class="form-control" required>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
       </table>
     </div>
 

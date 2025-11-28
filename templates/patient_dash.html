@@ -72,7 +72,7 @@
                     <td>{{ loop.index }}</td>
                     <td>{{ dept.name }}</td>
                     <td>
-                        <a href="/patient/book/{{ dept.id }}">
+                        <a href="{{ url_for('book_appointment', department_id=dept.id) }}">
                             <button type="button" class="btn btn-outline-warning btn-sm">Book Appointment</button>
                         </a>
                     </td>
@@ -105,14 +105,14 @@
                 {% for appt in upcoming_appointments %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    <td>{{ appt.doctor_name }}</td>
-                    <td>{{ appt.department_name }}</td>
+                    <td>{{ appt.doctor.name }}</td>
+                    <td>{{ appt.department.name }}</td>
                     <td>{{ appt.date }}</td>
                     <td>{{ appt.slot }}</td>
                     <td>
-                        <a href="/patient/appointment/{{ appt.id }}/cancel">
-                            <button type="button" class="btn btn-outline-danger btn-sm">Cancel</button>
-                        </a>
+                        <form action="{{ url_for('cancel_appointment', appointment_id=appt.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel?');">Cancel</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

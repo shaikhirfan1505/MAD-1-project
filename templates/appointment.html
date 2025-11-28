@@ -24,47 +24,44 @@
 
 <div id="main">
     <h2>Book Appointment - {{ department.name }}</h2>
-    <form action="/patient/appointment/book" method="POST">
-        <!-- Hidden department id -->
-        <input type="hidden" name="department_id" value="{{ department.id }}">
+        <form action="" method="POST">
+            <div class="mb-3">
+                <label for="doctor">Select Doctor</label>
+                <select class="form-select" name="doctor_id" required>
+                    {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}" {% if doctor == selected_doctor %}selected{% endif %}>
+                            {{ doctor.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <!-- Select Doctor -->
-        <div class="mb-3">
-            <label for="doctor" class="form-label">Select Doctor</label>
-            <select class="form-select" id="doctor" name="doctor_id" required>
-                <option value="" disabled selected>Select Doctor</option>
-                {% for doctor in doctors %}
-                    <option value="{{ doctor.id }}">{{ doctor.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="mb-3">
+                <label for="appointment_date">Select Date</label>
+                <select class="form-select" name="appointment_date" required>
+                    {% for d in available_dates %}
+                        <option value="{{ d }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <!-- Select Date -->
-        <div class="mb-3">
-            <label for="date" class="form-label">Select Date</label>
-            <select class="form-select" id="date" name="appointment_date" required>
-                <option value="" disabled selected>Select Date</option>
-                {% for date in available_dates %}
-                    <option value="{{ date }}">{{ date }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="mb-3">
+                <label for="slot">Select Time Slot</label>
+                <select class="form-select" name="slot" required>
+                    <option value="" disabled selected>Select Time Slot</option>
+                    {% for date, slots in slots_data.items() %}
+                        {% for slot_name, slot_time in slots.items() %}
+                            {% if slot_time %}
+                                <option value="{{ slot_name }}">{{ date }} - {{ slot_time }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
 
-        <!-- Select Slot -->
-        <div class="mb-3">
-            <label for="slot" class="form-label">Select Time Slot</label>
-            <select class="form-select" id="slot" name="slot" required>
-                <option value="" disabled selected>Select Slot</option>
-                {% for slot in available_slots %}
-                    <option value="{{ slot }}">{{ slot }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary">Book Appointment</button>
-        </div>
-    </form>
+        </form>
+
 </div>
 
 </body>

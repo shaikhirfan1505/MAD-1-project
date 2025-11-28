@@ -41,6 +41,9 @@ class Appointment(db.Model):
     date = db.Column(db.String(20))
     slot = db.Column(db.String(20))
     status = db.Column(db.String(20), default='Scheduled')
+    doctor = db.relationship('Doctor', backref='appointments')
+    department = db.relationship('Department', backref='appointments')
+    patient = db.relationship('Patient', backref='appointments')
 
 class TreatmentHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
