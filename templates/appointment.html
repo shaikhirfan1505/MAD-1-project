@@ -44,25 +44,21 @@
                     {% endfor %}
                 </select>
             </div>
-
             <div class="mb-3">
                 <label for="slot">Select Time Slot</label>
                 <select class="form-select" name="slot" required>
                     <option value="" disabled selected>Select Time Slot</option>
-                    {% for date, slots in slots_data.items() %}
-                        {% for slot_name, slot_time in slots.items() %}
+                    {% if appointment_date %}
+                        {% for slot_name, slot_time in slots_data[appointment_date].items() %}
                             {% if slot_time %}
-                                <option value="{{ slot_name }}">{{ date }} - {{ slot_time }}</option>
+                                <option value="{{ slot_name }}">{{ slot_time }}</option>
                             {% endif %}
                         {% endfor %}
-                    {% endfor %}
+                    {% endif %}
                 </select>
             </div>
-
             <button type="submit" class="btn btn-primary">Book Appointment</button>
         </form>
-
 </div>
-
 </body>
 </html>

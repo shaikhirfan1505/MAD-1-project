@@ -77,15 +77,25 @@
                     <td>{{ doctor.department.name }}</td>
                     <td>{{ doctor.email }}</td>
                     <td>
-                        <a href="/admin/doctor/{{ doctor.id }}" class="btn btn-sm btn-outline-primary">View</a>
+                        {% if session['role'] == 'admin' %}
+                            <a href="{{ url_for('admin_doctor_details', doctor_id=doctor.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        {% elif session['role'] == 'patient' %}
+                            <a href="{{ url_for('patient_doctor_details', doctor_id=doctor.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        {% endif %}
                     </td>
+
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-    <a href="/admin/dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
+        <a href="{% if session['role'] == 'admin' %}
+                {{ url_for('admin_dashboard') }}
+                {% else %}
+                {{ url_for('patient_dashboard') }}
+                {% endif %}" 
+        class="btn btn-secondary mt-3">Back to Dashboard
+    </a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

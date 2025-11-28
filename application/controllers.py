@@ -546,13 +546,15 @@ def init_routes(app):
             flash("Appointment booked successfully!", "success")
             return redirect(url_for('patient_dashboard'))
 
+        selected_date = available_dates[0] if available_dates else None  # default to first date
         return render_template(
             'appointment.html',
             department=department,
             doctors=doctors,
             available_dates=available_dates,
             selected_doctor=selected_doctor,
-            slots_data=slots_data
+            slots_data=slots_data,
+            appointment_date=selected_date
         )
 
 
