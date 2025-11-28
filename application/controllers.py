@@ -231,15 +231,28 @@ def init_routes(app):
         return render_template('doctor_detail.html', doctor=doctor)
 
 
-    # View doctor details (Patient)
     @app.route('/patient/doctor/<int:doctor_id>')
     def patient_doctor_details(doctor_id):
-        if 'role' not in session or session['role'] != 'patient':
+        if session.get('role') != 'patient':
             flash("Access denied!", "danger")
             return redirect(url_for('login'))
 
         doctor = Doctor.query.get_or_404(doctor_id)
-        return render_template('doctor_detail.html', doctor=doctor)
+
+        # Parse JSON availability
+        slots = {}
+        if doctor.available_slots:
+            try:
+                slots = json.loads(doctor.available_slots)
+            except:
+                slots = {}
+
+        return render_template(
+            'doctor_detail.html',
+            doctor=doctor,
+            slots=slots   # <-- REQUIRED
+        )
+
     
     @app.route('/admin/doctor/edit/<int:doctor_id>', methods=['GET', 'POST'])
     def edit_doctor(doctor_id):
@@ -423,35 +436,77 @@ def init_routes(app):
     # GET route to display doctor's availability
     @app.route('/doctor/availability')
     def doctor_availability():
+        if session.get('role') != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
         doctor_user = User.query.get(session.get('user_id'))
+        if not doctor_user:
+            flash("User not found!", "danger")
+            return redirect(url_for('login'))
+
         doctor = Doctor.query.filter_by(email=doctor_user.email).first()
+        if not doctor:
+            flash("Doctor record not found!", "danger")
+            return redirect(url_for('login'))
+
+        # Parse availability JSON
         slots_data = json.loads(doctor.available_slots) if doctor.available_slots else {}
+
+        # Generate next 7 days
         next_7_days = [date.today() + timedelta(days=i) for i in range(7)]
 
         return render_template(
             'doctor_avail.html',
             next_7_days=next_7_days,
-            slots_data=slots_data
+            slots_data=slots_data,
+            doctor=doctor
         )
 
 
     # POST route to save doctor's availability
     @app.route('/doctor/availability/save', methods=['POST'])
     def save_availability():
+        if session.get('role') != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
         doctor_user = User.query.get(session.get('user_id'))
+        if not doctor_user:
+            flash("User not found!", "danger")
+            return redirect(url_for('login'))
+
         doctor = Doctor.query.filter_by(email=doctor_user.email).first()
+        if not doctor:
+            flash("Doctor record not found!", "danger")
+            return redirect(url_for('login'))
+
+        # Build availability for next 7 days
         next_7_days = [date.today() + timedelta(days=i) for i in range(7)]
         new_slots = {}
+
         for d in next_7_days:
             d_str = d.isoformat()
+
             slot1 = request.form.get(f"slot1_{d_str}")
             slot2 = request.form.get(f"slot2_{d_str}")
-            new_slots[d_str] = {"slot1": slot1, "slot2": slot2}
 
+            # Normalize: empty means None (so booking page hides it)
+            slot1 = slot1 if slot1.strip() else None
+            slot2 = slot2 if slot2.strip() else None
+
+            new_slots[d_str] = {
+                "slot1": slot1,
+                "slot2": slot2
+            }
+
+        # Store JSON
         doctor.available_slots = json.dumps(new_slots)
         db.session.commit()
+
         flash("Availability updated!", "success")
         return redirect(url_for('doctor_availability'))
+
 
 
     # POST route to book a slot for a patient
@@ -489,7 +544,6 @@ def init_routes(app):
         flash("Appointment booked!", "success")
         return redirect('/doctor/dashboard')
 
-
     # Show booking appointment form for a department
     @app.route('/patient/department/<int:department_id>/book', methods=['GET', 'POST'])
     def book_appointment(department_id):
@@ -505,48 +559,58 @@ def init_routes(app):
         department = Department.query.get_or_404(department_id)
         doctors = Doctor.query.filter_by(department_id=department.id).all()
 
+        # Prepare next 7 days
         next_7_days = [date.today() + timedelta(days=i) for i in range(7)]
         available_dates = [d.isoformat() for d in next_7_days]
 
-        selected_doctor = doctors[0] if doctors else None
+        # Determine selected doctor
+        if request.method == 'POST':
+            doctor_id = request.form.get('doctor_id')
+            selected_doctor = Doctor.query.get(int(doctor_id)) if doctor_id else (doctors[0] if doctors else None)
+            appointment_date = request.form.get('appointment_date') or (available_dates[0] if available_dates else None)
+        else:
+            selected_doctor = doctors[0] if doctors else None
+            appointment_date = available_dates[0] if available_dates else None
+
+        # Load slots safely
         slots_data = json.loads(selected_doctor.available_slots) if selected_doctor and selected_doctor.available_slots else {}
 
-        if request.method == 'POST':
-            doctor_id = int(request.form.get('doctor_id'))
-            appointment_date = request.form.get('appointment_date')
-            slot_key = request.form.get('slot')  # key like slot1 or slot2
+        # Handle booking POST
+        if request.method == 'POST' and 'slot' in request.form:
+            slot_key = request.form.get('slot')
+            doctor = selected_doctor
 
-            doctor = Doctor.query.get_or_404(doctor_id)
-            slots_data = json.loads(doctor.available_slots) if doctor.available_slots else {}
-
-            if appointment_date not in slots_data or slots_data[appointment_date].get(slot_key) is None:
+            if not doctor or appointment_date not in slots_data or slots_data[appointment_date].get(slot_key) is None:
                 flash("Selected slot is not available!", "danger")
                 return redirect(url_for('book_appointment', department_id=department_id))
 
             slot_time = slots_data[appointment_date][slot_key]
 
             existing = Appointment.query.filter_by(
-                doctor_id=doctor_id, date=appointment_date, slot=slot_time, status='Scheduled'
+                doctor_id=doctor.id, date=appointment_date, slot=slot_time, status='Scheduled'
             ).first()
             if existing:
                 flash("This slot is already booked!", "danger")
                 return redirect(url_for('book_appointment', department_id=department_id))
 
+            # Create appointment
             new_appt = Appointment(
                 patient_id=patient.id,
-                doctor_id=doctor_id,
+                doctor_id=doctor.id,
                 department_id=department.id,
                 date=appointment_date,
-                slot=slot_time  # store actual time
+                slot=slot_time
             )
             db.session.add(new_appt)
+
+            # Mark slot unavailable
             slots_data[appointment_date][slot_key] = None
             doctor.available_slots = json.dumps(slots_data)
             db.session.commit()
+
             flash("Appointment booked successfully!", "success")
             return redirect(url_for('patient_dashboard'))
 
-        selected_date = available_dates[0] if available_dates else None  # default to first date
         return render_template(
             'appointment.html',
             department=department,
@@ -554,9 +618,8 @@ def init_routes(app):
             available_dates=available_dates,
             selected_doctor=selected_doctor,
             slots_data=slots_data,
-            appointment_date=selected_date
+            appointment_date=appointment_date
         )
-
 
     # Patients canceling appointments
     @app.route('/patient/appointment/cancel/<int:appointment_id>', methods=['POST'])

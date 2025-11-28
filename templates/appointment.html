@@ -24,41 +24,82 @@
 
 <div id="main">
     <h2>Book Appointment - {{ department.name }}</h2>
-        <form action="" method="POST">
-            <div class="mb-3">
-                <label for="doctor">Select Doctor</label>
-                <select class="form-select" name="doctor_id" required>
+    <form action="" method="POST">
+        
+        <!-- Doctor Selection -->
+        <div class="mb-3">
+            <label for="doctor">Select Doctor</label>
+            <select class="form-select" name="doctor_id" required onchange="this.form.submit()">
+                {% if doctors %}
                     {% for doctor in doctors %}
                         <option value="{{ doctor.id }}" {% if doctor == selected_doctor %}selected{% endif %}>
                             {{ doctor.name }}
                         </option>
                     {% endfor %}
-                </select>
-            </div>
+                {% else %}
+                    <option disabled selected>No doctors available</option>
+                {% endif %}
+            </select>
+        </div>
 
-            <div class="mb-3">
-                <label for="appointment_date">Select Date</label>
-                <select class="form-select" name="appointment_date" required>
+        <!-- Appointment Date Selection -->
+        <div class="mb-3">
+            <label for="appointment_date">Select Date</label>
+            <select class="form-select" name="appointment_date" required onchange="this.form.submit()">
+                {% if available_dates %}
                     {% for d in available_dates %}
-                        <option value="{{ d }}">{{ d }}</option>
+                        <option value="{{ d }}" {% if d == appointment_date %}selected{% endif %}>
+                            {{ d }}
+                        </option>
                     {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="slot">Select Time Slot</label>
-                <select class="form-select" name="slot" required>
-                    <option value="" disabled selected>Select Time Slot</option>
-                    {% if appointment_date %}
-                        {% for slot_name, slot_time in slots_data[appointment_date].items() %}
-                            {% if slot_time %}
-                                <option value="{{ slot_name }}">{{ slot_time }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Book Appointment</button>
-        </form>
+                {% else %}
+                    <option disabled selected>No available dates</option>
+                {% endif %}
+            </select>
+        </div>
+
+        <!-- Slot Selection -->
+        <div class="mb-3">
+            <label for="slot">Select Time Slot</label>
+            <select class="form-select" name="slot" required>
+                <option value="" disabled selected>Select Time Slot</option>
+                {% if selected_doctor and appointment_date and slots_data.get(appointment_date) %}
+                    {% for slot_name, slot_time in slots_data[appointment_date].items() %}
+                        {% if slot_time %}
+                            <option value="{{ slot_name }}">{{ slot_time }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <option disabled>No slots available</option>
+                {% endif %}
+            </select>
+        </div>
+
+        <!-- BUTTON ROW -->
+        <div class="d-flex justify-content-between mt-4">
+
+            <!-- BACK BUTTON LEFT -->
+            <a href="{% if session['role'] == 'admin' %}
+                        {{ url_for('admin_dashboard') }}
+                    {% elif session['role'] == 'doctor' %}
+                        {{ url_for('doctor_dashboard') }}
+                    {% else %}
+                        {{ url_for('patient_dashboard') }}
+                    {% endif %}"
+            class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+
+
+            <!-- BOOK BUTTON RIGHT -->
+            <button type="submit" class="btn btn-primary">
+                Book Appointment
+            </button>
+
+        </div>
+
+    </form>
 </div>
+
 </body>
 </html>
