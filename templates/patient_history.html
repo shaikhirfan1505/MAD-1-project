@@ -69,7 +69,6 @@
         {% endif %}
 
     </div>
-
     <!-- Treatment History Table -->
     <div class="table-section">
         <table class="table table-hover table-striped">
@@ -77,6 +76,7 @@
                 <tr>
                     <th scope="col">Visit No</th>
                     <th scope="col">Visit Type</th>
+                    <th scope="col">Test Done</th>
                     <th scope="col">Diagnosis</th>
                     <th scope="col">Prescription</th>
                     <th scope="col">Medicines</th>
@@ -89,22 +89,29 @@
                 {% for record in history_data %}
                 <tr>
                     <th scope="row">{{ loop.index }}</th>
-                    <td>{{ record.visit.visit_type }}</td>
-                    <td>{{ record.visit.diagnosis }}</td>
-                    <td>{{ record.visit.prescription }}</td>
-                    <td>{{ record.visit.medicines }}</td>
-                    {% if user_role == 'doctor' %}
+                    <td>{{ record.visit.visit_type if record.visit else record.visit_type or '-' }}</td>
+                    <td>{{ record.visit.test_done if record.visit else record.test_done or '-' }}</td>
+                    <td>{{ record.visit.diagnosis if record.visit else record.diagnosis or '-' }}</td>
+                    <td>{{ record.visit.prescription if record.visit else record.prescription or '-' }}</td>
+                    <td>{{ record.visit.medicines if record.visit else record.medicines or '-' }}</td>
+                    {% if user_role in ['doctor', 'admin'] %}
                     <td>
-                        <a href="/treatment/edit/{{ record.visit.id }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="/treatment/edit/{{ record.visit.id if record.visit else record.id }}" class="btn btn-sm btn-warning">Edit</a>
                     </td>
                     {% endif %}
                 </tr>
                 {% endfor %}
+                {% if history_data|length == 0 %}
+                <tr>
+                    <td colspan="7" class="text-center">No treatment history available.</td>
+                </tr>
+                {% endif %}
             </tbody>
-
 
         </table>
     </div>
+
+
 </div>
 
 </body>

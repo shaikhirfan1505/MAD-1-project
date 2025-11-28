@@ -228,7 +228,17 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         doctor = Doctor.query.get_or_404(doctor_id)
-        return render_template('doctor_detail.html', doctor=doctor)
+
+        # Optional: pass empty slots so template doesn’t break
+        slots = {}
+        if doctor.available_slots:
+            try:
+                slots = json.loads(doctor.available_slots)
+            except:
+                slots = {}
+
+        return render_template('doctor_detail.html', doctor=doctor, slots=slots)
+
 
 
     @app.route('/patient/doctor/<int:doctor_id>')
@@ -655,3 +665,181 @@ def init_routes(app):
         db.session.commit()
         flash("Appointment cancelled successfully!", "success")
         return redirect(url_for('patient_dashboard'))
+
+    # Show update form
+    @app.route('/doctor/patient/<int:patient_id>/update', methods=['GET'])
+    def update_patient_history(patient_id):
+        if 'role' not in session or session['role'] != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        patient = Patient.query.get_or_404(patient_id)
+        doctor = Doctor.query.get_or_404(session['user_id'])
+
+        # Fetch department
+        department = Department.query.get_or_404(doctor.department_id)
+
+        # Get existing history record OR create empty object
+        history = TreatmentHistory.query.filter_by(
+            doctor_id=doctor.id,
+            patient_id=patient.id
+        ).first()
+
+        if not history:
+            history = TreatmentHistory(
+                doctor_id=doctor.id,
+                patient_id=patient.id,
+                department_id=doctor.department_id,
+                visit_type='',
+                test_done='',
+                diagnosis='',
+                prescription='',
+                medicines=''
+            )
+            db.session.add(history)
+            db.session.commit()
+
+        return render_template(
+            'update_history.html',
+            patient=patient,
+            doctor=doctor,
+            department=department,
+            history=history
+        )
+
+
+    # Save updates
+    @app.route('/doctor/patient/<int:patient_id>/update', methods=['POST'])
+    def save_patient_history(patient_id):
+        if 'role' not in session or session['role'] != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        doctor_id = session['user_id']
+
+        history = TreatmentHistory.query.filter_by(
+            doctor_id=doctor_id, 
+            patient_id=patient_id
+        ).first_or_404()
+
+        history.visit_type = request.form.get('visit_type')
+        history.test_done = request.form.get('test_done')
+        history.diagnosis = request.form.get('diagnosis')
+        history.prescription = request.form.get('prescription')
+        history.medicines = request.form.get('medicines')
+
+        db.session.commit()
+
+        flash("Patient history updated successfully!", "success")
+        return redirect(url_for('view_patient_history', patient_id=patient_id))
+
+
+    # View patient history
+    @app.route('/doctor/patient/<int:patient_id>/history')
+    def view_patient_history(patient_id):
+        if 'role' not in session:
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        history_data = TreatmentHistory.query.filter_by(patient_id=patient_id).all()
+
+        return render_template(
+            'patient_history.html',
+            history_data=history_data,
+            user_role=session['role'],
+            back_url=url_for('doctor_dashboard')
+        )
+
+
+    @app.route('/doctor/appointment/<int:appointment_id>/update', methods=['GET'])
+    def doctor_update_appointment(appointment_id):
+        if session.get('role') != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        appointment = Appointment.query.get_or_404(appointment_id)
+        doctor = Doctor.query.filter_by(email=User.query.get(session['user_id']).email).first()
+        if appointment.doctor_id != doctor.id:
+            flash("You cannot edit this appointment.", "danger")
+            return redirect(url_for('doctor_dashboard'))
+
+        patient = Patient.query.get(appointment.patient_id)
+        department = Department.query.get(appointment.department_id)
+
+        # Fetch existing history OR create empty one
+        history = TreatmentHistory.query.filter_by(
+            doctor_id=doctor.id,
+            patient_id=patient.id
+        ).first()
+
+        if not history:
+            history = TreatmentHistory(
+                doctor_id=doctor.id,
+                patient_id=patient.id,
+                department_id=doctor.department_id,
+                visit_type='',
+                test_done='',
+                diagnosis='',
+                prescription='',
+                medicines=''
+            )
+            db.session.add(history)
+            db.session.commit()
+
+        return render_template(
+            'update_history.html',
+            appointment=appointment,
+            patient=patient,
+            doctor=doctor,
+            department=department,
+            history=history  # <-- pass it here
+        )
+
+
+
+    # MARK Appointment as Completed
+    @app.route('/doctor/appointment/<int:appointment_id>/complete')
+    def doctor_complete_appointment(appointment_id):
+        if session.get('role') != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        appointment = Appointment.query.get_or_404(appointment_id)
+        doctor = Doctor.query.filter_by(email=User.query.get(session['user_id']).email).first()
+        if appointment.doctor_id != doctor.id:
+            flash("You cannot modify this appointment.", "danger")
+            return redirect(url_for('doctor_dashboard'))
+
+        appointment.status = 'Completed'
+        db.session.commit()
+        flash("Appointment marked as completed!", "success")
+        return redirect(url_for('doctor_dashboard'))
+
+
+    # CANCEL Appointment (doctor cancels)
+    @app.route('/doctor/appointment/<int:appointment_id>/cancel', methods=['POST'])
+    def doctor_cancel_appointment(appointment_id):
+        if session.get('role') != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        appointment = Appointment.query.get_or_404(appointment_id)
+        doctor = Doctor.query.filter_by(email=User.query.get(session['user_id']).email).first()
+        if appointment.doctor_id != doctor.id:
+            flash("You cannot cancel this appointment.", "danger")
+            return redirect(url_for('doctor_dashboard'))
+
+        # Optional: restore slot in doctor's availability
+        if doctor.available_slots:
+            slots_data = json.loads(doctor.available_slots)
+            if appointment.date in slots_data:
+                for key, val in slots_data[appointment.date].items():
+                    if val is None:
+                        slots_data[appointment.date][key] = appointment.slot
+                        break
+                doctor.available_slots = json.dumps(slots_data)
+
+        db.session.delete(appointment)
+        db.session.commit()
+        flash("Appointment canceled successfully!", "success")
+        return redirect(url_for('doctor_dashboard'))

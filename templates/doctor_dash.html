@@ -101,6 +101,8 @@
                 <tr>
                     <th>Sr No</th>
                     <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>slot</th>
                     <th>Update History</th>
                     <th>Status</th>
                     <th>Cancel Appointment</th>
@@ -111,6 +113,8 @@
                 <tr>
                     <td>{{ loop.index }}</td>
                     <td>{{ appt.patient.name }}</td>
+                    <td>{{ appt.date }}</td>
+                    <td>{{ appt.slot }}</td>
                     <td>
                         <a href="/doctor/appointment/{{ appt.id }}/update" class="btn btn-sm btn-outline-primary">Update</a>
                     </td>
@@ -118,12 +122,12 @@
                         {% if appt.status == 'Completed' %}
                             <span class="badge bg-success">Completed</span>
                         {% else %}
-                            <a href="/doctor/appointment/{{ appt.id }}/complete" class="btn btn-sm btn-outline-success">Mark Completed</a>
+                            <a href="/doctor/appointment/{{ appt.id }}/complete" class="btn btn-sm btn-outline-success" onclick="return confirm('Are you sure you want to Mark this appointment as completed ?');" >Mark Completed</a>
                         {% endif %}
                     </td>
                     <td>
                         <form action="/doctor/appointment/{{ appt.id }}/cancel" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to cancel this appointment?');">Cancel</button>
                         </form>
                     </td>
                 </tr>

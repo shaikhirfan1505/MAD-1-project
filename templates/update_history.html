@@ -110,12 +110,17 @@
                         <input type="text" name="medicines" class="form-control" id="medicines" value="{{ history.medicines }}">
                     </div>
                 </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success btn-save">Save Updates</button>
+                </div>
+                <div class="mt-3">
+                    <a href="{% if user_role == 'doctor' %}{{ url_for('doctor_dashboard') }}{% else %}{{ url_for('admin_dashboard') }}{% endif %}" class="btn btn-warning">
+                        Back to Dashboard
+                    </a>
+                </div>
             </div>
         </div>
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-success btn-save">Save Updates</button>
-        </div>
     </form>
 
 </div>

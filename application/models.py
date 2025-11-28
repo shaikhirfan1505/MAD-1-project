@@ -56,4 +56,7 @@ class TreatmentHistory(db.Model):
     prescription = db.Column(db.Text)
     medicines = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    doctor = db.relationship('Doctor', backref='treatment_histories')
+    patient = db.relationship('Patient', backref='treatment_histories')
+    department = db.relationship('Department', backref='treatment_histories')
 
