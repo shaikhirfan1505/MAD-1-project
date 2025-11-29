@@ -186,8 +186,14 @@
                     <td>{{ patient.email }}</td>
                     <td>{{ patient.phone }}</td>
                     <td>
-                        <a href="/admin/patient/{{ patient.id }}/history" class="btn btn-sm btn-info text-white">View History</a>
-                        <a href="/admin/patient/delete/{{ patient.id }}" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="/admin/patient/{{ patient.id }}/history" 
+                        class="btn btn-sm btn-info text-white">View History
+                       </a>
+                        <a href="/admin/patient/delete/{{ patient.id }}" 
+                        class="btn btn-sm btn-danger" 
+                        onclick="return confirm('This will delete all the patient related data including patient history! Still continue?');">
+                        Delete
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}

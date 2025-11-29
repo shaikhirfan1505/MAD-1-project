@@ -85,7 +85,7 @@ def init_routes(app):
         total_appointments = Appointment.query.count()
         departments = Department.query.all()
         upcoming_appointments = Appointment.query.filter_by(status='Scheduled')\
-                                                .order_by(Appointment.date.desc()).all()
+                                                .order_by(Appointment.date.asc()).all()
 
         # Appointment history (Completed + Cancelled)
         appointment_history = Appointment.query.filter(
@@ -124,7 +124,7 @@ def init_routes(app):
         # Fetch upcoming appointments for this patient
         upcoming_appointments = Appointment.query.filter_by(
             patient_id=patient.id, status='Scheduled'
-        ).order_by(Appointment.date.desc()).all()
+        ).order_by(Appointment.date.asc()).all()
 
         # Appointment history (Completed + Cancelled)
         appointment_history = Appointment.query.filter(
@@ -160,7 +160,7 @@ def init_routes(app):
         # Upcoming appointments (status = 'Scheduled')
         upcoming_appointments = Appointment.query.filter_by(
             doctor_id=doctor.id, status='Scheduled'
-        ).order_by(Appointment.date.desc()).all()
+        ).order_by(Appointment.date.asc()).all()
 
         # Assigned patients: all patients who have any appointment with this doctor
         assigned_patients = Patient.query.join(
@@ -192,6 +192,30 @@ def init_routes(app):
             completed_appointments_count=completed_appointments_count,
             appointment_history=appointment_history  # added
         )
+
+    # Delete patient route (Admin only !!!)
+    @app.route('/admin/patient/delete/<int:patient_id>', methods=['POST'])
+    def delete_patient(patient_id):
+        if 'role' not in session or session['role'] != 'admin':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        patient = Patient.query.get_or_404(patient_id)
+        
+        # Delete treatment history
+        TreatmentHistory.query.filter_by(patient_id=patient.id).delete()
+        
+        # Delete linked user
+        user = User.query.get(patient.user_id)
+        if user:
+            db.session.delete(user)
+        
+        # Delete patient record
+        db.session.delete(patient)
+        db.session.commit()
+        flash("Patient and all related data deleted successfully!", "success")
+        return redirect(url_for('admin_dashboard'))
+
 
 
     # Patient logout route
