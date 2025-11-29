@@ -80,9 +80,6 @@
                     <th scope="col">Diagnosis</th>
                     <th scope="col">Prescription</th>
                     <th scope="col">Medicines</th>
-                    {% if user_role in ['admin', 'doctor'] %}
-                    <th scope="col">Actions</th>
-                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -95,9 +92,7 @@
                     <td>{{ record.visit.prescription if record.visit else record.prescription or '-' }}</td>
                     <td>{{ record.visit.medicines if record.visit else record.medicines or '-' }}</td>
                     {% if user_role in ['doctor', 'admin'] %}
-                    <td>
-                        <a href="/treatment/edit/{{ record.visit.id if record.visit else record.id }}" class="btn btn-sm btn-warning">Edit</a>
-                    </td>
+
                     {% endif %}
                 </tr>
                 {% endfor %}

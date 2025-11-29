@@ -84,18 +84,27 @@ def init_routes(app):
         total_patients = len(patients)
         total_appointments = Appointment.query.count()
         departments = Department.query.all()
-        upcoming_appointments = Appointment.query.all()  # or filter by future date
+        upcoming_appointments = Appointment.query.filter_by(status='Scheduled')\
+                                                .order_by(Appointment.date.desc()).all()
 
-        return render_template('admin_dash.html',
-                            doctors=doctors,
-                            patients=patients,
-                            total_doctors=total_doctors,
-                            departments=departments,
-                            total_patients=total_patients,
-                            total_appointments=total_appointments,
-                            upcoming_appointments=upcoming_appointments)
+        # Appointment history (Completed + Cancelled)
+        appointment_history = Appointment.query.filter(
+            Appointment.status.in_(['Completed', 'Cancelled'])
+        ).order_by(Appointment.date.desc()).all()
 
-    
+        return render_template(
+            'admin_dash.html',
+            doctors=doctors,
+            patients=patients,
+            total_doctors=total_doctors,
+            departments=departments,
+            total_patients=total_patients,
+            total_appointments=total_appointments,
+            upcoming_appointments=upcoming_appointments,
+            appointment_history=appointment_history  # added
+        )
+
+
     # Patient dashboard route
     @app.route('/patient/dashboard')
     def patient_dashboard():
@@ -113,14 +122,77 @@ def init_routes(app):
         departments = Department.query.all()
 
         # Fetch upcoming appointments for this patient
-        upcoming_appointments = Appointment.query.filter_by(patient_id=patient.id).order_by(Appointment.date.asc()).all()
+        upcoming_appointments = Appointment.query.filter_by(
+            patient_id=patient.id, status='Scheduled'
+        ).order_by(Appointment.date.desc()).all()
+
+        # Appointment history (Completed + Cancelled)
+        appointment_history = Appointment.query.filter(
+            Appointment.patient_id == patient.id,
+            Appointment.status.in_(['Completed', 'Cancelled'])
+        ).order_by(Appointment.date.desc()).all()
 
         return render_template(
             'patient_dash.html',
             patient=patient,
             departments=departments,
-            upcoming_appointments=upcoming_appointments
+            upcoming_appointments=upcoming_appointments,
+            appointment_history=appointment_history  # added
         )
+
+
+    # Doctor dashboard route
+    @app.route('/doctor/dashboard')
+    def doctor_dashboard():
+        if 'role' not in session or session['role'] != 'doctor':
+            flash("Access denied!", "danger")
+            return redirect(url_for('login'))
+
+        # Get logged-in doctor
+        user_id = session.get('user_id')
+        doctor_user = User.query.get(user_id)
+        doctor = Doctor.query.filter_by(email=doctor_user.email).first()
+
+        if not doctor:
+            flash("Doctor record not found!", "danger")
+            return redirect(url_for('login'))
+
+        # Upcoming appointments (status = 'Scheduled')
+        upcoming_appointments = Appointment.query.filter_by(
+            doctor_id=doctor.id, status='Scheduled'
+        ).order_by(Appointment.date.desc()).all()
+
+        # Assigned patients: all patients who have any appointment with this doctor
+        assigned_patients = Patient.query.join(
+            Appointment, Appointment.patient_id == Patient.id
+        ).filter(
+            Appointment.doctor_id == doctor.id
+        ).distinct().all()
+
+        # Counts for dashboard cards
+        total_patients = len(assigned_patients)
+        upcoming_appointments_count = len(upcoming_appointments)
+        completed_appointments_count = Appointment.query.filter_by(
+            doctor_id=doctor.id, status='Completed'
+        ).count()
+
+        # Appointment history (Completed + Cancelled)
+        appointment_history = Appointment.query.filter(
+            Appointment.doctor_id == doctor.id,
+            Appointment.status.in_(['Completed', 'Cancelled'])
+        ).order_by(Appointment.date.desc()).all()
+
+        return render_template(
+            'doctor_dash.html',
+            doctor=doctor,
+            upcoming_appointments=upcoming_appointments,
+            assigned_patients=assigned_patients,
+            total_patients=total_patients,
+            upcoming_appointments_count=upcoming_appointments_count,
+            completed_appointments_count=completed_appointments_count,
+            appointment_history=appointment_history  # added
+        )
+
 
     # Patient logout route
     @app.route('/patient/logout')
@@ -170,53 +242,6 @@ def init_routes(app):
             return redirect('/admin/dashboard')
 
         return render_template('add_doctor.html', Departments=Departments)
-
-
-
-    # Doctor dashboard route
-    @app.route('/doctor/dashboard')
-    def doctor_dashboard():
-        if 'role' not in session or session['role'] != 'doctor':
-            flash("Access denied!", "danger")
-            return redirect(url_for('login'))
-
-        # Get logged-in doctor
-        user_id = session.get('user_id')
-        doctor_user = User.query.get(user_id)
-        doctor = Doctor.query.filter_by(email=doctor_user.email).first()
-
-        if not doctor:
-            flash("Doctor record not found!", "danger")
-            return redirect(url_for('login'))
-
-        # Upcoming appointments (status = 'Scheduled')
-        upcoming_appointments = Appointment.query.filter_by(
-            doctor_id=doctor.id, status='Scheduled'
-        ).order_by(Appointment.date.asc()).all()
-
-        # Assigned patients: all patients who have any appointment with this doctor
-        assigned_patients = Patient.query.join(
-            Appointment, Appointment.patient_id == Patient.id
-        ).filter(
-            Appointment.doctor_id == doctor.id
-        ).distinct().all()
-
-        # Counts for dashboard cards
-        total_patients = len(assigned_patients)
-        upcoming_appointments_count = len(upcoming_appointments)
-        completed_appointments_count = Appointment.query.filter_by(
-            doctor_id=doctor.id, status='Completed'
-        ).count()
-
-        return render_template(
-            'doctor_dash.html',
-            doctor=doctor,
-            upcoming_appointments=upcoming_appointments,
-            assigned_patients=assigned_patients,
-            total_patients=total_patients,
-            upcoming_appointments_count=upcoming_appointments_count,
-            completed_appointments_count=completed_appointments_count
-        )
 
     
 
@@ -333,7 +358,7 @@ def init_routes(app):
     
 
 
-        # View patient history (Admin)
+    # View patient history (Admin)
     @app.route('/admin/patient/<int:patient_id>/history')
     def admin_patient_history(patient_id):
         if 'role' not in session or session['role'] != 'admin':
@@ -341,7 +366,8 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         patient = Patient.query.get_or_404(patient_id)
-        treatment_history = TreatmentHistory.query.filter_by(patient_id=patient.id).order_by(TreatmentHistory.created_at.desc()).all()
+        treatment_history = TreatmentHistory.query.filter_by(patient_id=patient.id)\
+                                                .order_by(TreatmentHistory.created_at.desc()).all()
 
         history_data = []
         for visit in treatment_history:
@@ -353,7 +379,7 @@ def init_routes(app):
                 "department": department
             })
 
-        user_role = session.get('role')  # pass role instead of current_user
+        user_role = session.get('role')
         return render_template(
             'patient_history.html',
             patient=patient,
@@ -399,7 +425,7 @@ def init_routes(app):
         return redirect('/admin/dashboard')  # admin dashboard departments section
 
 
-    #patient viewing there own history
+    # Patient viewing their own history
     @app.route('/patient/history')
     def patient_history():
         if 'role' not in session or session['role'] != 'patient':
@@ -661,7 +687,7 @@ def init_routes(app):
                     break
             doctor.available_slots = json.dumps(slots_data)
 
-        db.session.delete(appointment)
+        appointment.status = 'Cancelled'
         db.session.commit()
         flash("Appointment cancelled successfully!", "success")
         return redirect(url_for('patient_dashboard'))
@@ -708,40 +734,63 @@ def init_routes(app):
         )
 
 
-    # Save updates
+        # Save updates
     @app.route('/doctor/patient/<int:patient_id>/update', methods=['POST'])
     def save_patient_history(patient_id):
         if 'role' not in session or session['role'] != 'doctor':
             flash("Access denied!", "danger")
             return redirect(url_for('login'))
 
-        doctor_id = session['user_id']
+        # Get the correct doctor record
+        user_id = session['user_id']            # User ID from session
+        doctor = Doctor.query.filter_by(email=User.query.get(user_id).email).first()
 
-        history = TreatmentHistory.query.filter_by(
-            doctor_id=doctor_id, 
-            patient_id=patient_id
-        ).first_or_404()
+        if not doctor:
+            flash("Doctor record not found!", "danger")
+            return redirect(url_for('doctor_dashboard'))
 
-        history.visit_type = request.form.get('visit_type')
-        history.test_done = request.form.get('test_done')
-        history.diagnosis = request.form.get('diagnosis')
-        history.prescription = request.form.get('prescription')
-        history.medicines = request.form.get('medicines')
+        # Create new history record
+        new_history = TreatmentHistory(
+            patient_id=patient_id,
+            doctor_id=doctor.id,               # <-- Use Doctor.id, NOT User.id
+            department_id=doctor.department_id,
+            visit_type=request.form.get('visit_type'),
+            test_done=request.form.get('test_done'),
+            diagnosis=request.form.get('diagnosis'),
+            prescription=request.form.get('prescription'),
+            medicines=request.form.get('medicines')
+        )
 
+        db.session.add(new_history)
         db.session.commit()
 
-        flash("Patient history updated successfully!", "success")
+        flash("Patient history added successfully!", "success")
         return redirect(url_for('view_patient_history', patient_id=patient_id))
 
 
-    # View patient history
+
+
+
+
+    # Doctor viewing patient history
     @app.route('/doctor/patient/<int:patient_id>/history')
     def view_patient_history(patient_id):
         if 'role' not in session:
             flash("Access denied!", "danger")
             return redirect(url_for('login'))
 
-        history_data = TreatmentHistory.query.filter_by(patient_id=patient_id).all()
+        treatment_history = TreatmentHistory.query.filter_by(patient_id=patient_id)\
+                                                .order_by(TreatmentHistory.created_at.desc()).all()
+
+        history_data = []
+        for visit in treatment_history:
+            doctor = Doctor.query.get(visit.doctor_id)
+            department = Department.query.get(visit.department_id)
+            history_data.append({
+                "visit": visit,
+                "doctor": doctor,
+                "department": department
+            })
 
         return render_template(
             'patient_history.html',
@@ -749,7 +798,6 @@ def init_routes(app):
             user_role=session['role'],
             back_url=url_for('doctor_dashboard')
         )
-
 
     @app.route('/doctor/appointment/<int:appointment_id>/update', methods=['GET'])
     def doctor_update_appointment(appointment_id):
@@ -839,7 +887,8 @@ def init_routes(app):
                         break
                 doctor.available_slots = json.dumps(slots_data)
 
-        db.session.delete(appointment)
+        appointment.status = 'Cancelled'
         db.session.commit()
         flash("Appointment canceled successfully!", "success")
         return redirect(url_for('doctor_dashboard'))
+

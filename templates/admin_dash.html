@@ -187,7 +187,6 @@
                     <td>{{ patient.phone }}</td>
                     <td>
                         <a href="/admin/patient/{{ patient.id }}/history" class="btn btn-sm btn-info text-white">View History</a>
-                        <a href="/admin/patient/edit/{{ patient.id }}" class="btn btn-sm btn-warning">Edit</a>
                         <a href="/admin/patient/delete/{{ patient.id }}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
@@ -242,8 +241,43 @@
         </div>
     </div>
 
-
-
+    <!-- APPOINTMENT HISTORY -->
+    <div class="table-section">
+        <h4>Appointment History</h4>
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Sr No</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Slot</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointment_history %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ appt.patient.name }}</td>
+                    <td>{{ appt.doctor.name }}</td>
+                    <td>{{ appt.date }}</td>
+                    <td>{{ appt.slot }}</td>
+                    <td>
+                        {% if appt.status == 'Completed' %}
+                            <span class="badge bg-success">{{ appt.status }}</span>
+                        {% elif appt.status == 'Cancelled' %}
+                            <span class="badge bg-danger">{{ appt.status }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
 </div>
 
 <!-- FOOTER -->
